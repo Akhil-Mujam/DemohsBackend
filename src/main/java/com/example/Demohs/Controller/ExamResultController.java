@@ -19,12 +19,11 @@ public class ExamResultController {
 
     @Autowired
     ExamResultService examResultService;
-
     @Autowired
     SheetToExamResultConvertor sheetToExamResultConvertor;
-    @PostMapping("/{examType}")
-    public ResponseEntity<List<ExamResultDto>> createExamResult(@PathVariable String examType, @RequestParam MultipartFile file) throws IOException {
-       List<ExamResult> examResultList=sheetToExamResultConvertor.saveExamResultsFromExcel(file,examType);
+    @PostMapping("/{examType}/{teacherRegNo}")
+    public ResponseEntity<List<ExamResultDto>> createExamResult(@PathVariable String examType, @RequestParam MultipartFile file,@PathVariable String teacherRegNo) throws IOException {
+       List<ExamResult> examResultList=sheetToExamResultConvertor.saveExamResultsFromExcel(file,examType,teacherRegNo);
        List<ExamResultDto> examResultDtos=examResultService.save(examResultList);
        return new ResponseEntity<>(examResultDtos,HttpStatus.CREATED);
     }
@@ -34,11 +33,10 @@ public class ExamResultController {
         List<ExamResultDto> examResultDtos=examResultService.findByStudentMaster(studentRegNo);
         return new ResponseEntity<>(examResultDtos,HttpStatus.FOUND);
     }
-
-    @PutMapping("/{examType}")
-    public ResponseEntity<String> updateMarks(@PathVariable String examType,@RequestParam MultipartFile file)
+    @PutMapping("/{examType}/{teacherRegNo}")
+    public ResponseEntity<String> updateMarks(@PathVariable String examType,@RequestParam MultipartFile file,@PathVariable String teacherRegNo)
     {
-        sheetToExamResultConvertor.updateExamResultsFromExcel(file, examType);
+        sheetToExamResultConvertor.updateExamResultsFromExcel(file, examType,teacherRegNo);
         return new ResponseEntity<>("SuccessFully Updated",HttpStatus.OK);
     }
     @GetMapping("/rank/{examType}")
@@ -47,5 +45,4 @@ public class ExamResultController {
         List<ExamResultDto> examResultDtos=examResultService.findByExamType(examType);
         return new ResponseEntity<>(examResultDtos,HttpStatus.FOUND);
     }
-
 }

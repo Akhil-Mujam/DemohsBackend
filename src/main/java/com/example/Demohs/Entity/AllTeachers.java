@@ -1,6 +1,7 @@
 package com.example.Demohs.Entity;
 
 import com.example.Demohs.Dto.AllTeachersDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,19 +27,8 @@ public class AllTeachers {
 
     private String address;
 
-    public AllTeachersDto toAllTeachersDto(AllTeachers allTeachers)
-    {
-        AllTeachersDto a  = new AllTeachersDto();
-
-        a.setAddress(allTeachers.getAddress());
-        a.setTeacherId(allTeachers.getTeacherId());
-        a.setFirstName(allTeachers.getFirstName());
-        a.setPhno(allTeachers.getPhno());
-        a.setRegNo(allTeachers.getRegNo());
-        a.setLastName(allTeachers.getLastName());
-
-        return a;
-    }
+    @OneToOne
+    TeacherClass teacherClass;
 
 
 }

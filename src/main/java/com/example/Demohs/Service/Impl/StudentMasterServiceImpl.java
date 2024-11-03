@@ -80,15 +80,31 @@ public class StudentMasterServiceImpl implements StudentMasterService {
 
     @Override
     public StudentMaster findByRegNo(String regNo) {
-        return studentMasterRepository.findByRegNo(regNo).get();
+
+        Optional<StudentMaster> studentMasterOptional=studentMasterRepository.findByRegNo(regNo);
+        if(studentMasterOptional.isEmpty())
+        {
+            throw new ResourceNotFoundException("Student Not Found"+regNo);
+        }
+        return studentMasterOptional.get();
+    }
+
+    @Override
+    public List<StudentMaster> findByClassesEntityAndClassSection(String classesEntity, String classSection) {
+        return studentMasterRepository.findByClassesEntityAndClassSection(classesEntity,classSection);
     }
 
     @Override
     public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<StudentMaster> studentMastersPage = studentMasterRepository.findByClassesEntityAndClassSection(classId, classSection, pageable);
-
-        return studentMastersPage.map(student -> modelMapper.map(student,StudentMasterDto.class));
+        return null;
     }
+
+//    @Override
+//    public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<StudentMaster> studentMastersPage = studentMasterRepository.findByClassesEntityAndClassSection(classId, classSection, pageable);
+//
+//        return studentMastersPage.map(student -> modelMapper.map(student,StudentMasterDto.class));
+//    }
 
 }

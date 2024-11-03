@@ -52,15 +52,15 @@ public class AllTeacherController {
     }
 
     @PostMapping("/assign")
-    public ResponseEntity<String> assignClassTeacher(@RequestParam String regNo,@RequestParam String ClassName,@RequestParam String ClassSection)
+    public ResponseEntity<String> assignClassTeacher(@RequestParam String regNo,@RequestParam String classEntity,@RequestParam String classSection)
     {
 
-       return  new ResponseEntity<>(classTeacherService.makeClassTeacher(regNo,ClassName,ClassSection),HttpStatus.OK);
+       return  new ResponseEntity<>(classTeacherService.makeClassTeacher(regNo,classEntity,classSection),HttpStatus.OK);
     }
 
-    @GetMapping("/getTeacher/{ClassName}")
-    public ResponseEntity<AllTeachersDto> getTeacherByClassName(@PathVariable String ClassName)
+    @GetMapping("/getTeacher/{classEntity}")
+    public ResponseEntity<AllTeachersDto> getTeacherByClassName(@PathVariable String classEntity)
     {
-        return new ResponseEntity<>(classTeacherService.getTeacherByClassName(ClassName),HttpStatus.OK);
+        return new ResponseEntity<>(classTeacherService.getTeacherByClassName(classEntity),HttpStatus.OK);
     }
 }

@@ -7,7 +7,9 @@ import com.example.Demohs.Exception.ResourceAlreadyExistsException;
 import com.example.Demohs.Exception.ResourceNotFoundException;
 import com.example.Demohs.Repository.AllTeachersRepository;
 import com.example.Demohs.Repository.ClassTeacherRepository;
+import com.example.Demohs.Service.AllTeachersService;
 import com.example.Demohs.Service.ClassTeacherService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,12 @@ public class ClassTeacherImpl implements ClassTeacherService {
 
    @Autowired
    private AllTeachersRepository allTeachersRepository;
+
+   @Autowired
+   private AllTeachersService allTeachersService;
+
+   @Autowired
+    ModelMapper modelMapper;
     @Override
     public String makeClassTeacher(String regNo,String ClassName,String classSection) {
 
@@ -55,9 +63,15 @@ public class ClassTeacherImpl implements ClassTeacherService {
             throw new ResourceNotFoundException("className is not found");
         }
 
-        AllTeachers allTeachers = new AllTeachers();
 
-        AllTeachersDto allTeachersDto = allTeachers.toAllTeachersDto(allTeachersOptional.get().getTeacher());
+
+        AllTeachersDto allTeachersDto = modelMapper.map(allTeachersOptional.get(),AllTeachersDto.class);
         return null;
+    }
+
+    @Override
+    public TeacherClass getClassTeacher(String regNo) {
+        AllTeachers allTeachers=allTeachersService.getTeacher(regNo);
+        return classTeacherRepository.findByTeacher(allTeachers);
     }
 }

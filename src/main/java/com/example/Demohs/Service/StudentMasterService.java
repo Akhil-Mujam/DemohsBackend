@@ -21,6 +21,8 @@ public interface StudentMasterService {
 
 //    public List<StudentMasterDto> getByClassName(String ClassId);
 
+    List<StudentMaster> findByClassesEntityAndClassSection(String classesEntity,String classSection);
+
     public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size);
 
 }

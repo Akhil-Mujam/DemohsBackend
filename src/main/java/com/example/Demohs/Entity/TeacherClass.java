@@ -1,5 +1,6 @@
 package com.example.Demohs.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class TeacherClass {
 
     @OneToOne
     @JoinColumn(name = "teacher_id", referencedColumnName = "teacherId")
+    @JsonBackReference
     private AllTeachers teacher;  // Referencing the AllTeachers entity
 
     @Column(nullable = false)

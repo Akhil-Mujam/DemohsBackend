@@ -1,13 +1,11 @@
 package com.example.Demohs.util;
 
+import com.example.Demohs.Dto.ExamResultDto;
 import com.example.Demohs.Entity.*;
-import com.example.Demohs.Service.ExamResultService;
-import com.example.Demohs.Service.ExamTypeService;
-import com.example.Demohs.Service.StudentMasterService;
-import com.example.Demohs.Service.SubjectService;
+import com.example.Demohs.Exception.ResourceNotFoundException;
+import com.example.Demohs.Service.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class SheetToExamResultConvertor {
@@ -30,106 +29,76 @@ public class SheetToExamResultConvertor {
     private SubjectService subjectService;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ExamResultService examResultService;
 
     @Autowired
-    ExamResultService examResultService;
+    AllTeachersService allTeachersService;
 
-    public List<ExamResult> saveExamResultsFromExcel(MultipartFile file, String examType) {
+    @Autowired
+    ClassTeacherService classTeacherService;
+
+    public List<ExamResult> saveExamResultsFromExcel(MultipartFile file, String examType,String teacherRegNo) {
+
+
+        ExamType examTypeEntity = fetchExamType(examType);
+        List<Subject> subjects = fetchSubjectsFromHeader(file);
+        TeacherClass allTeachers=classTeacherService.getClassTeacher(teacherRegNo);
+        String className=allTeachers.getClassEntity();
+        String classSection=allTeachers.getClassSection();
+
+        List<StudentMaster> studentMasters=studentMasterService.findByClassesEntityAndClassSection(className,classSection);
+        int size=studentMasters.size();
         List<ExamResult> examResultList = new ArrayList<>();
-
-        // Fetch and map ExamType entity
-        ExamType examTypeEntity = examTypeService.findByExamName(examType);
-        if (examTypeEntity == null) {
-            throw new IllegalArgumentException("Invalid exam type: " + examType);
-        }
-
+        List<String> studentsRegNoList=new ArrayList<>();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
-            // Retrieve and map all Subject entities from the header row
-            Row headerRow = sheet.getRow(0);
-            List<Subject> subjects = new ArrayList<>();
-            for (int i = 1; i < headerRow.getLastCellNum(); i++) {
-                String subjectName = headerRow.getCell(i).getStringCellValue();
-                Subject subject = subjectService.findBySubjectName(subjectName);
-                if (subject != null) {
-                    subjects.add(subject);
-                } else {
-                    throw new IllegalArgumentException("Subject not found: " + subjectName);
-                }
-            }
+            if(size!=sheet.getLastRowNum())
+                throw new ResourceNotFoundException("ExcelSheet does not match the no of class students");
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                String studentRegNo = row.getCell(0).getStringCellValue();
-
-                // Fetch and map StudentMaster entity
-                StudentMaster student = studentMasterService.findByRegNo(studentRegNo);
-                if (student == null) {
-                    throw new IllegalArgumentException("Student not found: " + studentRegNo);
-                }
-                ExamResult examResult = new ExamResult();
-                examResult.setStudentMaster(student);
-                examResult.setExamType(examTypeEntity);
-
-                // Create SubjectMarks entries for each subject
-                List<SubjectMarks> subjectMarksList = new ArrayList<>();
-                double total=0;
-                boolean isPass=true;
-                for (int j = 1; j < row.getLastCellNum(); j++) {
-                    Cell cell= row.getCell(j);
-                    String marks =  "";
-                    String grade="";
-                    if(cell.getCellType().equals(CellType.STRING)) {
-                        if (cell.getStringCellValue().equalsIgnoreCase("A")||cell.getStringCellValue().equalsIgnoreCase("AB"))
-                        {
-                            isPass=false;
-                            marks=cell.getStringCellValue();
-                            grade="F";
-
-                        }
-                    }
-                    else if (cell.getCellType().equals(CellType.NUMERIC)) {
-                        if(cell.getNumericCellValue()<=35)
-                        {
-                            isPass=false;
-                        }
-                        total=total+cell.getNumericCellValue();
-                        grade=calculateGrade(cell.getNumericCellValue());
-                        marks=String.valueOf(cell.getNumericCellValue());
-
-                    }
-                    Subject subject = subjects.get(j - 1);
-                    SubjectMarks subjectMarks = new SubjectMarks();
-                    subjectMarks.setExamResult(examResult);  // Link to ExamResult
-                    subjectMarks.setSubject(subject);
-                    subjectMarks.setMarks(marks);
-                    subjectMarks.setGrade(grade);
-                    subjectMarksList.add(subjectMarks);
-                }
-                if(!isPass)
-                    total=Integer.MIN_VALUE;
-                examResult.setTotal(total);
-                examResult.setSubjectMarks(subjectMarksList);
+                ExamResult examResult = processExamResultRow(row, subjects, examTypeEntity,studentMasters,studentsRegNoList);
                 examResultList.add(examResult);
             }
-
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return examResultList;
     }
-    public void updateExamResultsFromExcel(MultipartFile file, String examType) {
+
+    public void updateExamResultsFromExcel(MultipartFile file, String examType,String teacherRegNo) {
+        ExamType examTypeEntity = fetchExamType(examType);
+        List<Subject> subjects = fetchSubjectsFromHeader(file);
+        TeacherClass allTeachers=classTeacherService.getClassTeacher(teacherRegNo);
+        String className=allTeachers.getClassEntity();
+        String classSection=allTeachers.getClassSection();
+        List<StudentMaster> studentMasters=studentMasterService.findByClassesEntityAndClassSection(className,classSection);
+        List<String> studentsRegNoList=new ArrayList<>();
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                updateExamResultRow(row, subjects, examTypeEntity,studentMasters,studentsRegNoList);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private ExamType fetchExamType(String examType) {
         ExamType examTypeEntity = examTypeService.findByExamName(examType);
         if (examTypeEntity == null) {
             throw new IllegalArgumentException("Invalid exam type: " + examType);
         }
+        return examTypeEntity;
+    }
 
+    private List<Subject> fetchSubjectsFromHeader(MultipartFile file) {
+        List<Subject> subjects = new ArrayList<>();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
-            Row headerRow = sheet.getRow(0);
-            List<Subject> subjects = new ArrayList<>();
+            Row headerRow = workbook.getSheetAt(0).getRow(0);
             for (int i = 1; i < headerRow.getLastCellNum(); i++) {
                 String subjectName = headerRow.getCell(i).getStringCellValue();
                 Subject subject = subjectService.findBySubjectName(subjectName);
@@ -139,79 +108,140 @@ public class SheetToExamResultConvertor {
                     throw new IllegalArgumentException("Subject not found: " + subjectName);
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return subjects;
+    }
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                String studentRegNo = row.getCell(0).getStringCellValue();
-                StudentMaster student = studentMasterService.findByRegNo(studentRegNo);
-                ExamResult existingExamResult =examResultService.findByStudentMasterAndExamType(student, examTypeEntity);
-                if (existingExamResult == null) {
-                    throw new IllegalArgumentException("Exam result not found for student: " + studentRegNo + " and exam type: " + examType);
-                }
-                boolean isPass=true;
-                double total=0;
-                for (int j = 1; j < row.getLastCellNum(); j++) {
-                    Cell cell= row.getCell(j);
-                    String marks =  "";
-                    String grade="";
-                    if(cell.getCellType().equals(CellType.STRING)) {
-                        if (cell.getStringCellValue().equalsIgnoreCase("A")||cell.getStringCellValue().equalsIgnoreCase("AB"))
-                        {
-                            isPass=false;
-                            marks=cell.getStringCellValue();
-                            grade="F";
-
-                        }
-                    }
-                    else if (cell.getCellType().equals(CellType.NUMERIC)) {
-                        if(cell.getNumericCellValue()<=35)
-                        {
-                            isPass=false;
-                        }
-                        marks=String.valueOf(cell.getNumericCellValue());
-                        grade=calculateGrade(cell.getNumericCellValue());
-
-                    }
-                    else {
-                        total=total+cell.getNumericCellValue();
-                    }
-                    Subject subject = subjects.get(j - 1);
-                    for (SubjectMarks subjectMarks : existingExamResult.getSubjectMarks()) {
-                        if (subjectMarks.getSubject().getSubjectId().equals(subject.getSubjectId())) {
-                            if (!subjectMarks.getMarks().equals(marks)) {
-                                subjectMarks.setMarks(marks);
-                                subjectMarks.setGrade(grade);
-                            }
-                        }
-                    }
-                }
-                if(!isPass)
-                    total=Integer.MIN_VALUE;
-                existingExamResult.setTotal(total);
-                List<ExamResult> examResultList=new ArrayList<>();
-                examResultList.add(existingExamResult);
-                examResultService.save(examResultList);//ave the updated exam result
+    private ExamResult processExamResultRow(Row row, List<Subject> subjects, ExamType examTypeEntity,List<StudentMaster> studentMasterList,List<String> studentRegNoList) {
+        String studentRegNo = row.getCell(0).getStringCellValue();
+        StudentMaster student = studentMasterService.findByRegNo(studentRegNo);
+        if(studentRegNoList.contains(studentRegNo))
+        {
+            throw new IllegalArgumentException("Excel contains Student Redundant data of "+studentRegNo);
+        }
+         AtomicBoolean sameSecAndClass= new AtomicBoolean(false);
+        studentMasterList.forEach(studentMaster -> {
+            if(studentMaster.getRegNo().equalsIgnoreCase(studentRegNo)) {
+                sameSecAndClass.set(true);
             }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        });
+        if(!sameSecAndClass.get())
+        {
+           throw  new IllegalArgumentException("Excel contains the data of the Other Section student "+studentRegNo);
         }
-    }
-    public  String calculateGrade(double total) {
-        if (total >= 90) {
-            return "A+";
-        } else if (total >= 80) {
-            return "A";
-        } else if (total >= 70) {
-            return "B+";
-        } else if (total >= 60) {
-            return "B";
-        } else if (total >= 50) {
-            return "C+";
-        } else if (total >= 35) {
-            return "C";
-        } else {
-            return "F";
+        studentRegNoList.add(studentRegNo);
+        ExamResult examResultPresent=examResultService.findByStudentMasterAndExamType(student,examTypeEntity);
+        if(examResultPresent!=null)
+        {
+            throw  new IllegalArgumentException("Exam Result Data Already Exist for these Students");
         }
+        ExamResult examResult = new ExamResult();
+        examResult.setStudentMaster(student);
+        examResult.setExamType(examTypeEntity);
+
+        boolean isPass = true;
+        double total = 0;
+
+        List<SubjectMarks> subjectMarksList = generateSubjectMarksList(row, subjects, examResult);
+        for (SubjectMarks subjectMarks : subjectMarksList) {
+            if (subjectMarks.getGrade().equals("F")) {
+                isPass = false;
+                break;  // Exit the loop if a failing grade is found
+            }
+            if (!subjectMarks.getMarks().equals("A") && !subjectMarks.getMarks().equals("AB")) {
+                total += Double.parseDouble(subjectMarks.getMarks());
+            }
+        }
+        examResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+        examResult.setSubjectMarks(subjectMarksList);
+
+        return examResult;
     }
 
+    private void updateExamResultRow(Row row, List<Subject> subjects, ExamType examTypeEntity,List<StudentMaster> studentMasterList,List<String> studentRegNoList) {
+        String studentRegNo = row.getCell(0).getStringCellValue();
+        StudentMaster student = studentMasterService.findByRegNo(studentRegNo);
+        if(studentRegNoList.contains(studentRegNo))
+        {
+            throw new IllegalArgumentException("Excel contains Student Redundant data of "+studentRegNo);
+        }
+        AtomicBoolean sameSecAndClass= new AtomicBoolean(false);
+        studentMasterList.forEach(studentMaster -> {
+            if(studentMaster.getRegNo().equalsIgnoreCase(studentRegNo)) {
+                sameSecAndClass.set(true);
+            }
+        });
+        if(!sameSecAndClass.get())
+        {
+            throw  new IllegalArgumentException("Excel contains the data of the Other Section student "+studentRegNo);
+        }
+        studentRegNoList.add(studentRegNo);
+        ExamResult existingExamResult = examResultService.findByStudentMasterAndExamType(student, examTypeEntity);
+        if (existingExamResult == null) {
+            throw new IllegalArgumentException("Exam result not found for student: " + studentRegNo + " and exam type: " + examTypeEntity);
+        }
+
+        boolean isPass = true;
+        double total = 0;
+
+        List<SubjectMarks> updatedSubjectMarksList = generateSubjectMarksList(row, subjects, existingExamResult);
+        for (SubjectMarks subjectMarks : updatedSubjectMarksList) {
+            if (subjectMarks.getGrade().equals("F")) {
+                isPass = false;
+                break;  // Exit the loop if a failing grade is found
+            }
+            if (!subjectMarks.getMarks().equals("A") && !subjectMarks.getMarks().equals("AB")) {
+                total += Double.parseDouble(subjectMarks.getMarks());
+            }
+        }
+
+        // Set total to Integer.MIN_VALUE if any subject has a failing grade
+        existingExamResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+        existingExamResult.setSubjectMarks(updatedSubjectMarksList);
+
+        examResultService.save(Collections.singletonList(existingExamResult));
+    }
+
+    private List<SubjectMarks> generateSubjectMarksList(Row row, List<Subject> subjects, ExamResult examResult) {
+        List<SubjectMarks> subjectMarksList = new ArrayList<>();
+        for (int j = 1; j < row.getLastCellNum(); j++) {
+            Cell cell = row.getCell(j);
+            String marks;
+            String grade;
+            boolean isAbsent = cell.getCellType() == CellType.STRING &&
+                    (cell.getStringCellValue().equalsIgnoreCase("A") ||
+                            cell.getStringCellValue().equalsIgnoreCase("AB"));
+
+            if (isAbsent) {
+                marks = cell.getStringCellValue();
+                grade = "F";
+            } else {
+                double numericMarks = cell.getNumericCellValue();
+                marks = String.valueOf(numericMarks);
+                grade = calculateGrade(numericMarks);
+            }
+
+            SubjectMarks subjectMarks = new SubjectMarks();
+            subjectMarks.setExamResult(examResult);
+            subjectMarks.setSubject(subjects.get(j - 1));
+            subjectMarks.setMarks(marks);
+            subjectMarks.setGrade(grade);
+            subjectMarksList.add(subjectMarks);
+        }
+        return subjectMarksList;
+    }
+
+    public String calculateGrade(double marks) {
+        if(marks>100) throw new IllegalArgumentException("Marks Should not be Greater than 100");
+        if (marks >= 90) return "A+";
+        if (marks >= 80) return "A";
+        if (marks >= 70) return "B+";
+        if (marks >= 60) return "B";
+        if (marks >= 50) return "C+";
+        if (marks >= 35) return "C";
+        if(marks<0) throw new IllegalArgumentException("Marks should not be Negative");
+        return "F";
+    }
 }

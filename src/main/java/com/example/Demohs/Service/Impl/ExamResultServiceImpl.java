@@ -60,7 +60,9 @@ public class ExamResultServiceImpl implements ExamResultService {
         List<ExamResult> examResultList1=examResultRepository.saveAll(examResultList);
         List<ExamResultDto> examResultDtos=new ArrayList<>();
         examResultList1.forEach(examResult -> {
-            examResultDtos.add(modelMapper.map(examResult,ExamResultDto.class));
+            ExamResultDto examResultDto= modelMapper.map(examResult,ExamResultDto.class);
+            examResultDto.setRegNo(examResult.getStudentMaster().getRegNo());
+            examResultDtos.add(examResultDto);
         });
         return examResultDtos;
     }

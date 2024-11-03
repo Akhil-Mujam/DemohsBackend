@@ -15,6 +15,10 @@ import java.util.List;
 public class StudentMaster {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true)
+    private Long studentId;
+
     @Column(nullable = false, unique = true)
     private String regNo;
 

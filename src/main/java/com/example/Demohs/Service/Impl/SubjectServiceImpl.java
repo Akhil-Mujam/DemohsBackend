@@ -16,11 +16,13 @@ public class SubjectServiceImpl implements SubjectService {
     ModelMapper modelMapper;
     @Override
     public Subject findBySubjectName(String subjectName) {
-        return  subjectRepository.findBySubjectName(subjectName);
+        subjectName=subjectName.toUpperCase();
+        return subjectRepository.findBySubjectName(subjectName);
     }
 
     @Override
     public SubjectDto createSubject(String subjectName) {
+        subjectName=subjectName.toUpperCase();
         Subject subject=new Subject();
         subject.setSubjectName(subjectName);
         return modelMapper.map(subjectRepository.save(subject),SubjectDto.class);
