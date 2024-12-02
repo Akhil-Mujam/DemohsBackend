@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -13,8 +15,7 @@ import lombok.*;
 public class AllTeachers {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long teacherId;
+    private UUID teacherId;
 
     @Column(nullable = false, unique = true)
     private String regNo;  // Teacher registration number
@@ -27,7 +28,12 @@ public class AllTeachers {
 
     private String address;
 
+    private String password;
+
+    private String role;
+
     @OneToOne
+    @JsonManagedReference  // Prevent infinite recursion by managing this side
     TeacherClass teacherClass;
 
 

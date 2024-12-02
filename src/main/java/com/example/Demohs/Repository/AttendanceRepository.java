@@ -11,10 +11,15 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
+public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
     Optional<Attendance> findByStudentMasterAndAttendanceDate(StudentMaster studentMaster, LocalDate date);
+
+    boolean existsByAttendanceDateAndClassNameAndClassSection(LocalDate date, String classId, String classSection);
+
+
 
     //Get Absent List of a specific date to all students in the school
     @Query("SELECT new com.example.Demohs.Dto.AbsentStudentResponse(a.studentMaster.regNo, a.studentMaster.firstName, a.studentMaster.lastName, a.studentMaster.classesEntity,a.studentMaster.classSection, a.studentMaster.phno) " +
@@ -26,8 +31,12 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
     List<Attendance> findAttendanceByClassName(@Param("className") String className);
 
     // Get attendance by class name and specific date
-    @Query("SELECT a FROM Attendance a WHERE a.studentMaster.classesEntity = :className AND a.attendanceDate = :date")
-    List<Attendance> findAttendanceByClassNameAndDate(@Param("className") String className, @Param("date") LocalDate date);
+//    @Query("SELECT a FROM Attendance a WHERE a.studentMaster.classesEntity = :className AND a.attendanceDate = :date")
+//    List<Attendance> findAttendanceByClassNameAndDate(@Param("className") String className, @Param("date") LocalDate date);
+    @Query("SELECT a FROM Attendance a WHERE a.className = :className AND a.classSection = :classSection AND a.attendanceDate = :date")
+    List<Attendance> findAttendanceByClassNameAndSectionAndDate(@Param("className") String className,
+                                                                @Param("classSection") String classSection,
+                                                                @Param("date") LocalDate date);
 
     // Get attendance by student's registration number and specific date
     @Query("SELECT a FROM Attendance a WHERE a.studentMaster.regNo = :regNo AND a.attendanceDate = :date")

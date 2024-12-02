@@ -8,6 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class SubjectServiceImpl implements SubjectService {
     @Autowired
@@ -24,7 +26,9 @@ public class SubjectServiceImpl implements SubjectService {
     public SubjectDto createSubject(String subjectName) {
         subjectName=subjectName.toUpperCase();
         Subject subject=new Subject();
+        subject.setSubjectId(UUID.randomUUID());
         subject.setSubjectName(subjectName);
-        return modelMapper.map(subjectRepository.save(subject),SubjectDto.class);
+        SubjectDto subjectDto = modelMapper.map(subjectRepository.save(subject),SubjectDto.class);
+        return subjectDto;
     }
 }

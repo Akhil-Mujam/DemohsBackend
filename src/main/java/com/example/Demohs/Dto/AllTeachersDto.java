@@ -5,7 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +18,7 @@ import lombok.*;
 @Builder
 public class AllTeachersDto {
 
-    private Long teacherId;
+    private UUID teacherId;
 
 
     private String regNo;  // Teacher registration number
@@ -24,22 +27,27 @@ public class AllTeachersDto {
 
     private String lastName;
 
+    @Size(min = 10, max = 10, message = "Phone number must be exactly 10 characters long")
     private String phno;
 
     private String address;
 
-    public AllTeachers toAllTeachers(AllTeachersDto allTeachersDto)
-    {
-        AllTeachers a = new AllTeachers();
+    private String password;
 
-        a.setAddress(allTeachersDto.getAddress());
-        a.setTeacherId(allTeachersDto.getTeacherId());
-        a.setFirstName(allTeachersDto.getFirstName());
-        a.setPhno(allTeachersDto.getPhno());
-        a.setRegNo(allTeachersDto.getRegNo());
-        a.setLastName(allTeachersDto.getLastName());
+    private String role;
 
-        return a;
-    }
+//    public AllTeachers toAllTeachers(AllTeachersDto allTeachersDto)
+//    {
+//        AllTeachers a = new AllTeachers();
+//
+//        a.setAddress(allTeachersDto.getAddress());
+//        a.setTeacherId(allTeachersDto.getTeacherId());
+//        a.setFirstName(allTeachersDto.getFirstName());
+//        a.setPhno(allTeachersDto.getPhno());
+//        a.setRegNo(allTeachersDto.getRegNo());
+//        a.setLastName(allTeachersDto.getLastName());
+//
+//        return a;
+//    }
 
 }

@@ -8,6 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class ExamTypeServiceImpl implements ExamTypeService {
     @Autowired
@@ -23,6 +25,7 @@ public class ExamTypeServiceImpl implements ExamTypeService {
     public ExamTypeDto createExamType(String examName) {
         ExamType examType=new ExamType();
         examType.setExamName(examName);
+        examType.setExamId(UUID.randomUUID());
         return modelMapper.map(examTypeRepository.save(examType),ExamTypeDto.class);
     }
 }

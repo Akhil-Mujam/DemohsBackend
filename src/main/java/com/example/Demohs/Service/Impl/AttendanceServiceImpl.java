@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +41,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
             // Create a new attendance record
             Attendance attendance = new Attendance();
+            attendance.setId(UUID.randomUUID());
             attendance.setStudentMaster(studentMaster);
             attendance.setAttendanceDate(date);
             attendance.setClassName(className);
@@ -60,15 +62,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate today = LocalDate.now();
         LocalDate date = LocalDate.parse(batchUpdateDTO.getAttendanceDate());
 
-        System.out.println(date + " today = "+today);
+        System.out.println(date + " today = " + today);
 
         if (!today.equals(date)) {
             throw new InvalidAttendanceUpdateException("Cannot update attendance for a date other than today.");
         }
 
         List<BatchAttendanceDTO.StudentAttendance> studentUpdates = batchUpdateDTO.getStudentAttendances();
-
-        // check whether the class and section is correct or not
 
         for (BatchAttendanceDTO.StudentAttendance studentUpdate : studentUpdates) {
 
@@ -80,8 +80,11 @@ public class AttendanceServiceImpl implements AttendanceService {
             Attendance attendance = attendanceRepository.findByStudentMasterAndAttendanceDate(studentMaster, date)
                     .orElseThrow(() -> new AttendanceRecordNotFoundException("Attendance record not found for student: " + studentUpdate.getRegNo()));
 
-            // Update the status
+            // Update the status - ID remains unchanged
             attendance.setStatus(studentUpdate.isStatus());
+
+            // Debugging: Ensure UUID is not changed
+            System.out.println("Updating attendance for ID: " + attendance.getId());
 
             // Save the updated attendance record
             attendanceRepository.save(attendance);
@@ -91,11 +94,20 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
 
+    @Override
+    public Boolean CheckTodayAttendance(String classId, String classSection) {
+        LocalDate today = LocalDate.now();
+
+        // Check if there are any attendance records for today, specific to the class ID and class section
+        return attendanceRepository.existsByAttendanceDateAndClassNameAndClassSection(today, classId, classSection);
+    }
+
+
 
 
     // Get attendance by class name and date
-    public List<Attendance> getAttendanceByClassNameAndDate(String className, LocalDate date) {
-        return attendanceRepository.findAttendanceByClassNameAndDate(className, date);
+    public List<Attendance> getAttendanceByClassNameAndDate(String className, String classSection ,LocalDate date) {
+        return attendanceRepository.findAttendanceByClassNameAndSectionAndDate(className,classSection, date);
     }
 
     @Override

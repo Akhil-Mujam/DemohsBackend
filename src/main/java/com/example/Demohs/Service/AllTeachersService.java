@@ -2,19 +2,22 @@ package com.example.Demohs.Service;
 
 import com.example.Demohs.Dto.AllTeachersDto;
 import com.example.Demohs.Entity.AllTeachers;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface AllTeachersService {
 
-    public String addTeacher(AllTeachersDto allTeachersDto);
+   String addTeacher(AllTeachersDto allTeachersDto);
 
-    public String deleteTeacher(String regNo);
+    String deleteTeacher(String regNo);
 
-    public String updateTeacher(AllTeachersDto allTeachersDto);
+    String updateTeacher(AllTeachersDto allTeachersDto);
 
-    public AllTeachers getTeacher(String regNo);
+  AllTeachers getTeacher(String regNo);
 
-    public List<AllTeachersDto> getAllTeachers();
+
+    Page<AllTeachersDto> getAllTeachers(int page, int size);
+
 
 }

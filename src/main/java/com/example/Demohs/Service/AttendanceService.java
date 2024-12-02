@@ -14,12 +14,13 @@ public interface AttendanceService {
 
     public String updateBatchAttendance(BatchAttendanceDTO batchUpdateDTO);
 
+   public Boolean CheckTodayAttendance(String classId,String classSection);
 
     public StudentAttendanceResponse getAttendanceByStudent(String regNo, LocalDate fromDate, LocalDate toDate);
 
     public List<Attendance> getAttendanceByRegNoAndDate(String regNo, LocalDate date);
 
-    public List<Attendance> getAttendanceByClassNameAndDate(String className, LocalDate date);
+    public List<Attendance> getAttendanceByClassNameAndDate(String className, String classSection, LocalDate date);
 
     public List<AbsentStudentResponse> getAbsentStudentsByDate(LocalDate date);
 }

@@ -8,11 +8,14 @@ import com.example.Demohs.Service.ClassTeacherService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/teacher")
@@ -32,6 +35,13 @@ public class AllTeacherController {
         return new ResponseEntity<>(allTeachersService.addTeacher(allTeachersDto),HttpStatus.OK );
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateTeacher(@PathVariable UUID id, @RequestBody AllTeachersDto allTeachersDto)
+    {
+        allTeachersDto.setTeacherId(id);
+        return new ResponseEntity<>(allTeachersService.updateTeacher(allTeachersDto),HttpStatus.OK );
+    }
+
     @GetMapping("/{regNo}")
     public ResponseEntity<AllTeachers> getTeacher(@PathVariable String regNo)
     {
@@ -44,11 +54,11 @@ public class AllTeacherController {
         return  new ResponseEntity<>(allTeachersService.deleteTeacher(regNo),HttpStatus.OK);
     }
     @GetMapping("/all")
-    public ResponseEntity<List<AllTeachersDto>> getAllTeachers()
-    {
-        List<AllTeachersDto> allTeachersDtoList = allTeachersService.getAllTeachers();
-
-        return new ResponseEntity<>(allTeachersDtoList,HttpStatus.OK);
+    public Page<AllTeachersDto> getAllTeachers(
+            @RequestParam(defaultValue = "0") int page, // Default page number
+            @RequestParam(defaultValue = "10") int size // Default page size
+    ) {
+        return allTeachersService.getAllTeachers(page, size);
     }
 
     @PostMapping("/assign")
@@ -63,4 +73,12 @@ public class AllTeacherController {
     {
         return new ResponseEntity<>(classTeacherService.getTeacherByClassName(classEntity),HttpStatus.OK);
     }
+
+
+    @GetMapping("/class-details/{regNo}")
+    public ResponseEntity<Map<String, String>> getClassDetails(@PathVariable String regNo) {
+        Map<String, String> classDetails = classTeacherService.getClassDetailsByRegNo(regNo);
+        return ResponseEntity.ok(classDetails);
+    }
+
 }

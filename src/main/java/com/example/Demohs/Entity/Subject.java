@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.autoconfigure.graphql.ConditionalOnGraphQlSchema;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -15,8 +17,8 @@ import org.springframework.stereotype.Component;
 public class Subject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    Long subjectId;
+
+    UUID subjectId;
 
     @Column(name = "subject_name")
     String subjectName;

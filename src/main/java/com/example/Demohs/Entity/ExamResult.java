@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -18,19 +19,20 @@ import java.util.List;
 
 public class ExamResult {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long examResultId;
+    private UUID examResultId;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "student_id")
     private StudentMaster studentMaster;
 
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "exam_type_id")
     private ExamType examType;
 
-    @OneToMany(mappedBy = "examResult", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "examResult")
     @JsonManagedReference
     private List<SubjectMarks> subjectMarks; // Use a list to hold the subject marks
 

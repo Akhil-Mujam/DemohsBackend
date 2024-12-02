@@ -8,13 +8,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface StudentMasterRepository extends JpaRepository<StudentMaster,Long> {
+public interface StudentMasterRepository extends JpaRepository<StudentMaster, UUID> {
 
        Optional<StudentMaster> findByRegNo(String regNo);
 
 //       List<StudentMaster> findByClassesEntity(String ClassId);
 
        List<StudentMaster> findByClassesEntityAndClassSection(String classId, String classSection);
+
+//       Page<StudentMaster> findByClassNameAndClassSection(String className, String classSection, Pageable pageable);
 }

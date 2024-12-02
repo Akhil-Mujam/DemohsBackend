@@ -10,12 +10,14 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExamResultDto {
 
+    private UUID examResultId;
     private String regNo;
     private String examName;
     private List<SubjectMarksDto> subjectMarksList;

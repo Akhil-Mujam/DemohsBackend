@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -17,8 +18,7 @@ import java.util.List;
 public class ExamType {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    Long examId;
+    UUID examId;
     @Column(name = "exam_name")
     String examName;
 

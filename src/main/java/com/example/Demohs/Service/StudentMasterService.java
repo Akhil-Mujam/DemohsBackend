@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface StudentMasterService {
 
-    public StudentMaster addStudent(StudentMasterDto studentMasterDto);
+    public String addStudent(StudentMasterDto studentMasterDto);
 
     public String DeleteStudent(String regNo);
 
@@ -17,11 +17,15 @@ public interface StudentMasterService {
 
     public List<StudentMasterDto> getAllStudents();
 
+    public String updateStudentById(StudentMasterDto studentMasterDto);
+
     public StudentMaster findByRegNo(String regNo);
 
 //    public List<StudentMasterDto> getByClassName(String ClassId);
 
     List<StudentMaster> findByClassesEntityAndClassSection(String classesEntity,String classSection);
+
+
 
     public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size);
 

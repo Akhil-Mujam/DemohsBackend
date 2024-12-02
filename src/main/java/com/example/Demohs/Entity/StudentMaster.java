@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,9 +16,7 @@ import java.util.List;
 public class StudentMaster {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
-    private Long studentId;
+    private UUID studentId;
 
     @Column(nullable = false, unique = true)
     private String regNo;
@@ -41,12 +40,16 @@ public class StudentMaster {
     @Column(nullable = false)
     private String address;
 
-    // Many-to-one relationship with ClassData
     private String classesEntity;  // Corrected field name
 
     private String classSection;
 
-    @OneToMany
+    @OneToMany(mappedBy = "studentMaster",cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Attendance> attendance;
+
+    @OneToMany(mappedBy = "studentMaster")
+    @JsonManagedReference
     List<ExamResult> examResultList;
 
 }

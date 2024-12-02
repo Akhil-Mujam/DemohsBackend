@@ -8,13 +8,16 @@ import com.example.Demohs.Service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/student/attendance")
+
 public class AttendanceController {
 
     @Autowired
@@ -23,7 +26,8 @@ public class AttendanceController {
 //      add attendance
 //         {
 //        "attendanceDate":"2024-10-26",
-//            "className":"III-A",
+//            "className":"III",
+//            "classSection":"A",
 //            "studentAttendances":
 //            [
 //                  {
@@ -48,6 +52,13 @@ public class AttendanceController {
         return new ResponseEntity<>(s, HttpStatus.OK);
     }
 
+    @GetMapping("/checkToday/{classId}/{classSection}")
+    public ResponseEntity<Boolean> CheckTodayAttendance(@PathVariable String classId,@PathVariable String classSection){
+
+            return new ResponseEntity<>(attendanceService.CheckTodayAttendance( classId,classSection),HttpStatus.OK);
+    }
+
+
     @PutMapping("/updateBatch")
     public ResponseEntity<String> updateBatchAttendance(@RequestBody BatchAttendanceDTO batchUpdateDTO) {
        String s = attendanceService.updateBatchAttendance(batchUpdateDTO);
@@ -55,15 +66,16 @@ public class AttendanceController {
     }
 
     // Endpoint to get attendance by class name and date
-    @GetMapping("/byClass/{className}/date/{date}")
+    @GetMapping("/byClass/{className}/{classSection}/date/{date}")
     public ResponseEntity<List<Attendance>> getAttendanceByClassNameAndDate(
-            @PathVariable String className, @PathVariable String date) {
+            @PathVariable String className,@PathVariable String classSection, @PathVariable String date) {
         LocalDate attendanceDate = LocalDate.parse(date);
-        List<Attendance> attendanceRecords = attendanceService.getAttendanceByClassNameAndDate(className, attendanceDate);
+        List<Attendance> attendanceRecords = attendanceService.getAttendanceByClassNameAndDate(className, classSection,attendanceDate);
         return ResponseEntity.ok(attendanceRecords);
     }
 
     // Endpoint to get attendance by student regNo and date
+   
     @GetMapping("/byStudent/{regNo}/date/{date}")
     public ResponseEntity<List<Attendance>> getAttendanceByRegNoAndDate(
             @PathVariable String regNo, @PathVariable String date) {
@@ -84,11 +96,8 @@ public class AttendanceController {
 
         StudentAttendanceResponse response = attendanceService.getAttendanceByStudent(regNo, start , end);
 
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(Objects.requireNonNullElseGet(response, () -> new StudentAttendanceResponse("No Data", "", "", List.of())));
 
-        return ResponseEntity.ok(response);
     }
 
     //List of absentees

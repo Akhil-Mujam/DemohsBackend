@@ -6,12 +6,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentMasterDto
 {
+    private UUID studentId;
+
     private String regNo;
 
     private String firstName;
@@ -30,6 +35,10 @@ public class StudentMasterDto
     private String classesEntity;
 
     private String classSection;
+
+    private  String password;
+
+    private String role;
 
 
 }
