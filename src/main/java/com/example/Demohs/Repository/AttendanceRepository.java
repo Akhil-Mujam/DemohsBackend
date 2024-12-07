@@ -22,10 +22,19 @@ public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
 
 
     //Get Absent List of a specific date to all students in the school
-    @Query("SELECT new com.example.Demohs.Dto.AbsentStudentResponse(a.studentMaster.regNo, a.studentMaster.firstName, a.studentMaster.lastName, a.studentMaster.classesEntity,a.studentMaster.classSection, a.studentMaster.phno) " +
+    @Query("SELECT new com.example.Demohs.Dto.AbsentStudentResponse(" +
+            "a.studentMaster.regNo, " +
+            "a.studentMaster.firstName, " +
+            "a.studentMaster.lastName, " +
+            "a.studentMaster.classesEntity, " +
+            "a.studentMaster.classSection, " +
+            "a.studentMaster.phno, " +
+            "false) " +  // Hardcoded boolean value for the status field
             "FROM Attendance a " +
             "WHERE a.attendanceDate = :date AND a.status = false")
-    List<AbsentStudentResponse> findAbsentStudentsByDate(LocalDate date);
+    List<AbsentStudentResponse> findAbsentStudentsByDate(@Param("date") LocalDate date);
+
+
 
     @Query("SELECT a FROM Attendance a WHERE a.studentMaster.classesEntity = :className")
     List<Attendance> findAttendanceByClassName(@Param("className") String className);

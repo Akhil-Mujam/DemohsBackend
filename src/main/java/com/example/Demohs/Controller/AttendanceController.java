@@ -67,10 +67,10 @@ public class AttendanceController {
 
     // Endpoint to get attendance by class name and date
     @GetMapping("/byClass/{className}/{classSection}/date/{date}")
-    public ResponseEntity<List<Attendance>> getAttendanceByClassNameAndDate(
+    public ResponseEntity<List<AbsentStudentResponse>> getAttendanceByClassNameAndDate(
             @PathVariable String className,@PathVariable String classSection, @PathVariable String date) {
         LocalDate attendanceDate = LocalDate.parse(date);
-        List<Attendance> attendanceRecords = attendanceService.getAttendanceByClassNameAndDate(className, classSection,attendanceDate);
+        List<AbsentStudentResponse> attendanceRecords = attendanceService.getAttendanceByClassNameAndDate(className, classSection,attendanceDate);
         return ResponseEntity.ok(attendanceRecords);
     }
 

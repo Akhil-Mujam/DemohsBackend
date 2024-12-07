@@ -17,5 +17,6 @@ public class AbsentStudentResponse {
     private String classesEntity;
     private String classSection;
     private String phno;
+    private boolean status;
 }
 

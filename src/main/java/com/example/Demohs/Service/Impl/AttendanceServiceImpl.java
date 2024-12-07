@@ -106,8 +106,20 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 
     // Get attendance by class name and date
-    public List<Attendance> getAttendanceByClassNameAndDate(String className, String classSection ,LocalDate date) {
-        return attendanceRepository.findAttendanceByClassNameAndSectionAndDate(className,classSection, date);
+    public List<AbsentStudentResponse> getAttendanceByClassNameAndDate(String className, String classSection ,LocalDate date) {
+        List<Attendance> attendanceList = attendanceRepository.findAttendanceByClassNameAndSectionAndDate(className, classSection, date);
+        List<AbsentStudentResponse> absentStudentResponseList = attendanceList.stream().map(attendance ->
+                AbsentStudentResponse.builder()
+                        .regNo(attendance.getStudentMaster().getRegNo()) // Fetch student registration number
+                        .classesEntity(attendance.getClassName())
+                        .classSection(attendance.getClassSection())
+                        .firstName(attendance.getStudentMaster().getFirstName())
+                        .lastName(attendance.getStudentMaster().getLastName())
+                        .phno(attendance.getStudentMaster().getPhno())
+                        .status(attendance.isStatus())
+                        .build()
+        ).toList();
+        return absentStudentResponseList;
     }
 
     @Override

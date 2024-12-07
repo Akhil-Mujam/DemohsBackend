@@ -20,7 +20,7 @@ public interface AttendanceService {
 
     public List<Attendance> getAttendanceByRegNoAndDate(String regNo, LocalDate date);
 
-    public List<Attendance> getAttendanceByClassNameAndDate(String className, String classSection, LocalDate date);
+    public List<AbsentStudentResponse> getAttendanceByClassNameAndDate(String className, String classSection, LocalDate date);
 
     public List<AbsentStudentResponse> getAbsentStudentsByDate(LocalDate date);
 }
