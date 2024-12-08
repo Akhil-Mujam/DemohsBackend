@@ -12,7 +12,7 @@ public class GlobalCorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173"); // Add the URL of your React frontend
+        config.addAllowedOrigin("https://shhsadmin-flax.vercel.app"); // Add the URL of your React frontend
         config.addAllowedHeader("*"); // Allows all headers
         config.addAllowedMethod("*"); // Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
         config.setAllowCredentials(true); // Allows cookies and credentials if needed
