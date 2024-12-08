@@ -29,7 +29,7 @@ public class DemohsApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://localhost:3000") // React app origin
+						.allowedOrigins("https://shhsadmin-flax.vercel.app") // React app origin
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 						.allowedHeaders("*");
 			}
