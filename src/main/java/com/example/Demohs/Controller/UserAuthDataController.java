@@ -145,7 +145,7 @@ public class UserAuthDataController {
     private void addTokenCookieToResponse(HttpServletResponse response, String cookieName, String token, int maxAgeInSeconds) {
         Cookie cookie = new Cookie(cookieName, token);
         cookie.setHttpOnly(true); // Set as HTTP-only
-        cookie.setSecure(false);  // Set true if using HTTPS
+        cookie.setSecure(true);  // Set true if using HTTPS
         cookie.setPath("/");      // Set the path to make it accessible across the application
         cookie.setMaxAge(maxAgeInSeconds); // Set expiration time in seconds
         response.addCookie(cookie);
@@ -154,7 +154,7 @@ public class UserAuthDataController {
     private void clearCookie(HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, null); // Set value to null
         cookie.setHttpOnly(true); // HTTP-only for security
-        cookie.setSecure(false);  // Set true if using HTTPS
+        cookie.setSecure(true);  // Set true if using HTTPS
         cookie.setPath("/");      // Ensure the path matches where the cookie is set
         cookie.setMaxAge(0);      // Expire the cookie immediately
         response.addCookie(cookie);
