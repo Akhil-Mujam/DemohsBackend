@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/userauthdata/version/authenticate").permitAll()
                         .requestMatchers("/userauthdata/refresh").permitAll()// Allow unauthenticated access
+                        .requestMatchers("/userauthdata/getUserRole").permitAll()
+                        .requestMatchers("/circular").permitAll()
                         .anyRequest().authenticated() // All other requests require authentication
                 )
                 .exceptionHandling(exception -> exception
