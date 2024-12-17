@@ -145,11 +145,22 @@ public class UserAuthDataController {
     private void addTokenCookieToResponse(HttpServletResponse response, String cookieName, String token, int maxAgeInSeconds) {
         Cookie cookie = new Cookie(cookieName, token);
         cookie.setHttpOnly(true); // Set as HTTP-only
-        cookie.setSecure(true);  // Set true if using HTTPS
-        cookie.setPath("/");      // Set the path to make it accessible across the application
+        cookie.setSecure(true);  // Ensure it is sent over HTTPS
+        cookie.setPath("/");     // Accessible throughout the app
         cookie.setMaxAge(maxAgeInSeconds); // Set expiration time in seconds
-        response.addCookie(cookie);
+        cookie.setDomain("demohsbackend-production.up.railway.app"); // Set your domain here
+
+        // Manually append the SameSite attribute and other cookie attributes
+        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=None; Domain=%s",
+                cookieName,
+                token,
+                maxAgeInSeconds,
+                "/",
+                "your-domain.com"); // Replace with your actual domain
+
+        response.addHeader("Set-Cookie", cookieHeader);
     }
+
 
     private void clearCookie(HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, null); // Set value to null
