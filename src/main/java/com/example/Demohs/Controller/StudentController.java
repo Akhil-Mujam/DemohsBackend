@@ -6,7 +6,6 @@ import com.example.Demohs.Service.StudentMasterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,7 +55,7 @@ public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionList(
     @DeleteMapping("/delete/{regNo}")
     public ResponseEntity<String> deleteByRegNo(@PathVariable String regNo)
     {
-        return new ResponseEntity<>(studentMasterService.DeleteStudent(regNo),HttpStatus.OK);
+        return new ResponseEntity<>(studentMasterService.deleteStudent(regNo),HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
@@ -64,6 +63,13 @@ public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionList(
         studentMasterDto.setStudentId(id); // Ensure the DTO contains the correct ID
         String response = studentMasterService.updateStudentById(studentMasterDto);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pagination/getClassStudents/{classId}/{classSection}")
+    public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionListPagination(@PathVariable String classId, @PathVariable String classSection, @RequestParam(value ="page",defaultValue = "0") int page, @RequestParam(value = "size",defaultValue = "10")int size){
+
+        List<StudentMaster> studentMasterList =   studentMasterService.findByClassesEntityAndClassSectionPagination(classId, classSection,page,size);
+        return new ResponseEntity<>(studentMasterList,HttpStatus.OK);
     }
 
 

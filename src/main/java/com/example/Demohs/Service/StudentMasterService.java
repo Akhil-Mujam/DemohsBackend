@@ -5,13 +5,12 @@ import com.example.Demohs.Entity.StudentMaster;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface StudentMasterService {
 
     public String addStudent(StudentMasterDto studentMasterDto);
 
-    public String DeleteStudent(String regNo);
+    public String deleteStudent(String regNo);
 
     public StudentMasterDto getStudentByRegNo(String regNo);
 
@@ -25,7 +24,7 @@ public interface StudentMasterService {
 
     List<StudentMaster> findByClassesEntityAndClassSection(String classesEntity,String classSection);
 
-
+    List<StudentMaster> findByClassesEntityAndClassSectionPagination(String classesEntity,String classSection,int page,int size);
 
     public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size);
 

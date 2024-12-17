@@ -59,7 +59,7 @@ public class StudentMasterServiceImpl implements StudentMasterService {
     }
 
     @Override
-    public String DeleteStudent(String regNo) {
+    public String deleteStudent(String regNo) {
         Optional<StudentMaster> studentMasterOptional = studentMasterRepository.findByRegNo(regNo);
 
         if(studentMasterOptional.isEmpty())
@@ -172,6 +172,12 @@ public class StudentMasterServiceImpl implements StudentMasterService {
         return studentMasterRepository.findByClassesEntityAndClassSection(classesEntity,classSection);
     }
 
+    @Override
+    public List<StudentMaster> findByClassesEntityAndClassSectionPagination(String classesEntity, String classSection, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<StudentMaster> studentPage = studentMasterRepository.findByClassesEntityAndClassSection(classesEntity, classSection, pageable);
+        return studentPage.getContent();
+    }
 
 
     @Override
