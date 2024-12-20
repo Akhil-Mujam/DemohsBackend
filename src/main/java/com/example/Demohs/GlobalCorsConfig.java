@@ -20,6 +20,8 @@ public class GlobalCorsConfig {
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "https://adminshhs.vercel.app",
+                "https://shhsgdk.in",
+                "https://shhsadmin-master-production.up.railway.app",
                 "https://shhsadmin-flax.vercel.app"
         );
         config.setAllowedOrigins(allowedOrigins);
