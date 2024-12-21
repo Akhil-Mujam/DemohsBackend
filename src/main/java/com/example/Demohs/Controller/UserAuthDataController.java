@@ -148,17 +148,18 @@ public class UserAuthDataController {
         cookie.setSecure(true);  // Ensure it is sent over HTTPS
         cookie.setPath("/");     // Accessible throughout the app
         cookie.setMaxAge(maxAgeInSeconds); // Set expiration time in seconds
-        cookie.setDomain("demohsbackend-production.up.railway.app"); // Set your domain here
+        response.addCookie(cookie);
+//        cookie.setDomain("demohsbackend-production.up.railway.app"); // Set your domain here
 
         // Manually append the SameSite attribute and other cookie attributes
-        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=None; Domain=%s",
-                cookieName,
-                token,
-                maxAgeInSeconds,
-                "/",
-                "your-domain.com"); // Replace with your actual domain
-
-        response.addHeader("Set-Cookie", cookieHeader);
+//        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=None; Domain=%s",
+//                cookieName,
+//                token,
+//                maxAgeInSeconds,
+//                "/",
+//                "your-domain.com"); // Replace with your actual domain
+//
+//        response.addHeader("Set-Cookie", cookieHeader);
     }
 
 
