@@ -22,6 +22,7 @@ public class GlobalCorsConfig {
                 "https://adminshhs.vercel.app",
                 "https://shhsgdk.in",
                 "https://shhsadmin-master-production.up.railway.app",
+                "https://shhsadmin-production.up.railway.app",
                 "https://shhsadmin-flax.vercel.app"
         );
         config.setAllowedOrigins(allowedOrigins);
