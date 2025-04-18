@@ -32,7 +32,7 @@ public class AllTeachers {
 
     private String role;
 
-    @OneToOne
+    @OneToOne(mappedBy = "teacher", cascade = CascadeType.REMOVE) // Remove TeacherClass when AllTeachers is deleted
     @JsonManagedReference  // Prevent infinite recursion by managing this side
     TeacherClass teacherClass;
 

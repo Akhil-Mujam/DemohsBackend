@@ -40,11 +40,15 @@ public class StudentMaster {
     @Column(nullable = false)
     private String address;
 
-    private String classesEntity;  // Corrected field name
+    private String classesEntity;
 
     private String classSection;
 
-    @OneToMany(mappedBy = "studentMaster",cascade = CascadeType.ALL)
+    // Add the discount field
+    @Column(nullable = true) // Nullable since not all students might have a discount
+    private Integer discount;
+
+    @OneToMany(mappedBy = "studentMaster", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Attendance> attendance;
 
@@ -52,4 +56,7 @@ public class StudentMaster {
     @JsonManagedReference
     List<ExamResult> examResultList;
 
+    @OneToMany(mappedBy = "studentMaster", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<StudentFeeDetails> feeDetails;
 }

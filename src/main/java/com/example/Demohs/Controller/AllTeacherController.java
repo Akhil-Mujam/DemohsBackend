@@ -81,4 +81,11 @@ public class AllTeacherController {
         return ResponseEntity.ok(classDetails);
     }
 
+    @DeleteMapping("/remove-classTeacher/{regNo}")
+    public ResponseEntity<String> DeleteClassTeacher(@PathVariable String regNo)
+    {
+        String s = classTeacherService.removeClassTeacher(regNo);
+        return new ResponseEntity<>(s,HttpStatus.OK);
+    }
+
 }

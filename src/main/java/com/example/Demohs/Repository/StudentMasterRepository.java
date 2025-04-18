@@ -17,7 +17,9 @@ public interface StudentMasterRepository extends JpaRepository<StudentMaster, UU
 
 //       List<StudentMaster> findByClassesEntity(String ClassId);
 
-       List<StudentMaster> findByClassesEntityAndClassSection(String classId, String classSection);
+       List<StudentMaster> findByClassesEntityAndClassSection(String className, String classSection);
+
+       List<StudentMaster> findByClassesEntity(String className);
 
        Page<StudentMaster> findByClassesEntityAndClassSection(String classesEntity, String classSection, Pageable pageable);
 

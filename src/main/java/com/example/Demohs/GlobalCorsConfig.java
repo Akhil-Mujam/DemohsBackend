@@ -6,6 +6,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -28,7 +29,7 @@ public class GlobalCorsConfig {
         config.setAllowedOrigins(allowedOrigins);
 
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept")); // Specify needed headers
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Explicitly list methods
+        config.setAllowedMethods(Collections.singletonList("*"));// Explicitly list methods
         config.setAllowCredentials(true); // Allow sending cookies
 
         // Register the CORS configuration

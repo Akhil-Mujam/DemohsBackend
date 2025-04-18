@@ -5,6 +5,7 @@ import com.example.Demohs.Dto.TeacherClassDto;
 import com.example.Demohs.Entity.TeacherClass;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface ClassTeacherService {
 
@@ -15,5 +16,7 @@ public interface ClassTeacherService {
     public TeacherClass getClassTeacher(String regNo);
 
     public Map<String, String> getClassDetailsByRegNo(String regNo);
+
+    public String removeClassTeacher(String regno);
 
 }

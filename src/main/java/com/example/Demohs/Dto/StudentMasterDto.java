@@ -40,5 +40,7 @@ public class StudentMasterDto
 
     private String role;
 
+    private Integer discount;
+
 
 }

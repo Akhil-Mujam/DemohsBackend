@@ -5,6 +5,7 @@ import com.example.Demohs.Entity.StudentMaster;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface StudentMasterService {
 
@@ -24,8 +25,10 @@ public interface StudentMasterService {
 
     List<StudentMaster> findByClassesEntityAndClassSection(String classesEntity,String classSection);
 
-    List<StudentMaster> findByClassesEntityAndClassSectionPagination(String classesEntity,String classSection,int page,int size);
+    Page<StudentMasterDto> findByClassesEntityAndClassSectionPagination(String classesEntity,String classSection,int page,int size);
 
     public Page<StudentMasterDto> getByClassNameAndSection(String classId, String classSection, int page, int size);
+
+    public void updateStudentDiscount(UUID studentId, Integer discount);
 
 }

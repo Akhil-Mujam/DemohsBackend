@@ -184,7 +184,14 @@ public class SheetToExamResultConvertor {
             } else {
                 double numericMarks = cell.getNumericCellValue();
                 marks = String.valueOf(numericMarks);
-                grade = calculateGrade(numericMarks);
+                if(examTypeEntity.getExamName().contains("FA"))
+                {
+                    grade = calculateFAGrade(numericMarks);
+                }
+                else {
+                    grade = calculateGrade(numericMarks);
+                }
+
             }
 
             SubjectMarks subjectMarks = new SubjectMarks();
@@ -207,7 +214,8 @@ public class SheetToExamResultConvertor {
 
         // Step 3: Update ExamResult with calculated total
         examResult.setSubjectMarks(subjectMarksList);
-        examResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+       // examResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+        examResult.setTotal( total );
         examResultRepository.save(examResult); // Update ExamResult with subject marks
     }
 
@@ -239,26 +247,27 @@ public class SheetToExamResultConvertor {
         boolean isPass = true;
         double total = 0;
 
-        List<SubjectMarks> updatedSubjectMarksList = generateSubjectMarksList(row, subjects, existingExamResult);
+        List<SubjectMarks> updatedSubjectMarksList = generateSubjectMarksList(row, subjects, existingExamResult, examTypeEntity);
         for (SubjectMarks subjectMarks : updatedSubjectMarksList) {
-            if (subjectMarks.getGrade().equals("F")) {
-                isPass = false;
-                break;
-            }
+//            if (subjectMarks.getGrade().equals("F")) {
+//                isPass = false;
+//                break;
+//            }
             if (!subjectMarks.getMarks().equals("A") && !subjectMarks.getMarks().equals("AB")) {
                 total += Double.parseDouble(subjectMarks.getMarks());
             }
         }
 
         // Set total to Integer.MIN_VALUE if any subject has a failing grade
-        existingExamResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+        //existingExamResult.setTotal(isPass ? total : Integer.MIN_VALUE);
+        existingExamResult.setTotal(total);
         existingExamResult.setSubjectMarks(updatedSubjectMarksList);
         existingExamResult.setExamResultId(existingExamResult.getExamResultId());
 
         examResultService.save(Collections.singletonList(existingExamResult));
     }
 
-    private List<SubjectMarks> generateSubjectMarksList(Row row, List<Subject> subjects, ExamResult examResult) {
+    private List<SubjectMarks> generateSubjectMarksList(Row row, List<Subject> subjects, ExamResult examResult, ExamType examTypeEntity) {
 
 
         List<SubjectMarks> subjectMarksList = new ArrayList<>();
@@ -276,7 +285,13 @@ public class SheetToExamResultConvertor {
             } else {
                 double numericMarks = cell.getNumericCellValue();
                 marks = String.valueOf(numericMarks);
-                grade = calculateGrade(numericMarks);
+                if(examTypeEntity.getExamName().contains("FA"))
+                {
+                    grade = calculateFAGrade(numericMarks);
+                }
+                else {
+                    grade = calculateGrade(numericMarks);
+                }
             }
             Subject subject=subjects.get(j-1);
             Optional<SubjectMarks> subjectMarksOptional=subjectMarkRepository.findByExamResultAndSubject(examResult,subject);
@@ -307,6 +322,18 @@ public class SheetToExamResultConvertor {
         if (marks >= 60) return "B";
         if (marks >= 50) return "C+";
         if (marks >= 35) return "C";
+        if(marks<0) throw new IllegalArgumentException("Marks should not be Negative");
+        return "F";
+    }
+
+    public String calculateFAGrade(double marks) {
+        if(marks>50) throw new IllegalArgumentException("Marks Should not be Greater than 100");
+        if (marks >= 50) return "A+";
+        if (marks >= 40) return "A";
+        if (marks >= 30) return "B+";
+        if (marks >= 20) return "B";
+        if (marks >= 10) return "C+";
+        if (marks >= 5) return "C";
         if(marks<0) throw new IllegalArgumentException("Marks should not be Negative");
         return "F";
     }

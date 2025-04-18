@@ -36,18 +36,6 @@ public class AllTeachersDto {
 
     private String role;
 
-//    public AllTeachers toAllTeachers(AllTeachersDto allTeachersDto)
-//    {
-//        AllTeachers a = new AllTeachers();
-//
-//        a.setAddress(allTeachersDto.getAddress());
-//        a.setTeacherId(allTeachersDto.getTeacherId());
-//        a.setFirstName(allTeachersDto.getFirstName());
-//        a.setPhno(allTeachersDto.getPhno());
-//        a.setRegNo(allTeachersDto.getRegNo());
-//        a.setLastName(allTeachersDto.getLastName());
-//
-//        return a;
-//    }
+
 
 }

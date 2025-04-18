@@ -1,11 +1,13 @@
 package com.example.Demohs.Controller;
 
 import com.example.Demohs.Dto.StudentMasterDto;
+import com.example.Demohs.Dto.UpdateStudentDiscountRequest;
 import com.example.Demohs.Entity.StudentMaster;
 import com.example.Demohs.Service.StudentMasterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,11 +67,26 @@ public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionList(
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/pagination/getClassStudents/{classId}/{classSection}")
-    public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionListPagination(@PathVariable String classId, @PathVariable String classSection, @RequestParam(value ="page",defaultValue = "0") int page, @RequestParam(value = "size",defaultValue = "10")int size){
+//    @GetMapping("/pagination/getClassStudents/{classId}/{classSection}")
+//    public ResponseEntity<List<StudentMaster>> getStudentsByClassNameAndSectionListPagination(@PathVariable String classId, @PathVariable String classSection, @RequestParam(value ="page",defaultValue = "0") int page, @RequestParam(value = "size",defaultValue = "10")int size){
+//
+//        List<StudentMaster> studentMasterList =   studentMasterService.findByClassesEntityAndClassSectionPagination(classId, classSection,page,size);
+//        return new ResponseEntity<>(studentMasterList,HttpStatus.OK);
+//    }
 
-        List<StudentMaster> studentMasterList =   studentMasterService.findByClassesEntityAndClassSectionPagination(classId, classSection,page,size);
-        return new ResponseEntity<>(studentMasterList,HttpStatus.OK);
+    @GetMapping("/students/all")
+    public Page<StudentMasterDto> getStudents(
+            @RequestParam String className,
+            @RequestParam String classSection,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return studentMasterService.findByClassesEntityAndClassSectionPagination(className, classSection, page, size);
+    }
+
+    @PatchMapping("/update-discount")
+    public ResponseEntity<String> updateDiscount(@Valid @RequestBody UpdateStudentDiscountRequest discountRequest) {
+        studentMasterService.updateStudentDiscount(discountRequest.getStudentId(), discountRequest.getDiscount());
+        return ResponseEntity.ok("Discount updated successfully");
     }
 
 

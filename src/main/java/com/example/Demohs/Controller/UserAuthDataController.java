@@ -8,11 +8,13 @@ import com.example.Demohs.util.JavaUtilToken;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -92,18 +94,29 @@ public class UserAuthDataController {
         }
     }
     @PutMapping("/refresh")
-    public List<String> refreshAccessToken(@CookieValue(name = "refreshToken", defaultValue = "") String refreshToken,HttpServletResponse response) {
-        // Validate and refresh access token using refresh token
-        if (javaUtilToken.validateToken(refreshToken)) {
-            String username = javaUtilToken.extractUsername(refreshToken);
-            String newAccessToken = javaUtilToken.generateToken(username);
-            addTokenCookieToResponse(response, "jwtToken", newAccessToken, 5 * 60 * 60);
-            UserAuthData userAuthData= userAuthDataService.findByUserName(username);
-            return userAuthData.getUserRole();
-        } else {
-            throw new RuntimeException("Session Expired");
+    public List<String> refreshAccessToken(
+            @CookieValue(name = "refreshToken", defaultValue = "") String refreshToken,
+            HttpServletResponse response) {
+
+        if (refreshToken.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token is missing");
         }
+
+        if (!javaUtilToken.validateToken(refreshToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
+        }
+
+        String username = javaUtilToken.extractUsername(refreshToken);
+        String newAccessToken = javaUtilToken.generateToken(username);
+
+        // Add the new access token to the response cookie
+        addTokenCookieToResponse(response, "jwtToken", newAccessToken, 5 * 60 * 60);
+
+        // Fetch and return user roles
+        UserAuthData userAuthData = userAuthDataService.findByUserName(username);
+        return userAuthData.getUserRole();
     }
+
     @PostMapping("/validate-token")
     public ResponseEntity<String> validateToken(@RequestParam String token) {
         // Validate the provided token

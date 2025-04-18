@@ -11,14 +11,18 @@ import com.example.Demohs.Repository.AllTeachersRepository;
 import com.example.Demohs.Repository.UserAuthDataRepository;
 import com.example.Demohs.Service.AllTeachersService;
 import com.example.Demohs.Service.UserAuthDataService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AllteachersServiceImpl implements AllTeachersService {
@@ -46,6 +50,11 @@ public class AllteachersServiceImpl implements AllTeachersService {
             throw new ResourceAlreadyExistsException("already exists with this registration Number");
         }
 
+        // Capitalize firstName, lastName, and address
+        allTeachersDto.setFirstName(capitalize(allTeachersDto.getFirstName()));
+        allTeachersDto.setLastName(capitalize(allTeachersDto.getLastName()));
+        allTeachersDto.setAddress(capitalize(allTeachersDto.getAddress()));
+
         UserAuthDataDto userAuthDataDto=new UserAuthDataDto();
         userAuthDataDto.setUserName(allTeachersDto.getRegNo());
         userAuthDataDto.setPassword(allTeachersDto.getPassword());
@@ -60,21 +69,43 @@ public class AllteachersServiceImpl implements AllTeachersService {
         return "Registration number "+allTeachers1.getRegNo()+" is successfully added.";
     }
 
-    @Override
-    public String deleteTeacher(String regNo) {
+    private String capitalize(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return input;
+        }
+        return Arrays.stream(input.split("\\s+"))  // Split words by spaces
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase()) // Capitalize first letter
+                .collect(Collectors.joining(" "));  // Join words back into a sentence
+    }
 
+
+    @Override
+    @Transactional
+    public String deleteTeacher(String regNo) {
+        // Check if the teacher exists in AllTeachers
         Optional<AllTeachers> allTeachersOptional = allTeachersRepository.findByRegNo(regNo);
 
-        if(allTeachersOptional.isEmpty())
-        {
+        if (allTeachersOptional.isEmpty()) {
             throw new ResourceNotFoundException("Faculty is not available with this registration Number");
         }
 
-        allTeachersRepository.deleteById(allTeachersOptional.get().getTeacherId());
+        // Fetch the teacher entity
+        AllTeachers teacher = allTeachersOptional.get();
 
-        return "Deleted Successfully with the registration number "+allTeachersOptional.get().getRegNo();
+        // Delete the teacher record from AllTeachers
+        allTeachersRepository.deleteById(teacher.getTeacherId());
 
+        // Check if the teacher exists in UserAuthData
+        Optional<UserAuthData> userAuthDataOptional = userAuthDataRepository.findByUsername(regNo);
+
+        if (userAuthDataOptional.isPresent()) {
+            // Delete the corresponding UserAuthData record
+            userAuthDataRepository.delete(userAuthDataOptional.get());
+        }
+
+        return "Deleted successfully with the registration number " + regNo;
     }
+
 
     @Override
     public String updateTeacher(AllTeachersDto allTeachersDto) {
@@ -82,6 +113,11 @@ public class AllteachersServiceImpl implements AllTeachersService {
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher Not Found"));
 
         String username = allTeachers.getRegNo();
+
+        // Capitalize necessary fields before updating
+        allTeachersDto.setFirstName(capitalize(allTeachersDto.getFirstName()));
+        allTeachersDto.setLastName(capitalize(allTeachersDto.getLastName()));
+        allTeachersDto.setAddress(capitalize(allTeachersDto.getAddress()));
 
         modelMapper.map(allTeachersDto, allTeachers);
         if (username != null) {
@@ -129,9 +165,9 @@ public class AllteachersServiceImpl implements AllTeachersService {
         // Fetch paginated data from the repository
         Page<AllTeachers> allTeachersPage = allTeachersRepository.findAll(pageable);
 
-        if (allTeachersPage.isEmpty()) {
-            throw new ResourceNotFoundException("No teachers are found");
-        }
+//        if (allTeachersPage.isEmpty()) {
+//            throw new ResourceNotFoundException("No teachers are found");
+//        }
 
         // Map the paginated entities to DTOs
 

@@ -20,4 +20,6 @@ public interface ClassTeacherRepository extends JpaRepository<TeacherClass, UUID
 
     @Query("SELECT tc FROM TeacherClass tc WHERE tc.teacher.regNo = :regNo")
     Optional<TeacherClass> findTeacherClassByRegNo(@Param("regNo") String regNo);
+
+    boolean existsByClassEntityAndClassSection(String className, String classSection);
 }

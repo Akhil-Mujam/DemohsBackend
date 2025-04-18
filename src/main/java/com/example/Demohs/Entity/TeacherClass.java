@@ -18,7 +18,7 @@ public class TeacherClass {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name = "teacher_id", referencedColumnName = "teacherId")
+    @JoinColumn(name = "teacher_id", referencedColumnName = "teacherId", nullable = false)
     @JsonBackReference
     private AllTeachers teacher;  // Referencing the AllTeachers entity
 
