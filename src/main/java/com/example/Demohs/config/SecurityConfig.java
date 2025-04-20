@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers("/userauthdata/version/authenticate").permitAll()
                         .requestMatchers("/userauthdata/refresh").permitAll()// Allow unauthenticated access
                         .requestMatchers("/userauthdata/getUserRole").permitAll()
+                        .requestMatchers("/swagger-ui.html",
+                                         "/swagger-ui/**",
+                                        "/v3/api-docs/**").permitAll()
                         .requestMatchers("/circular").permitAll()
                         .anyRequest().authenticated() // All other requests require authentication
                 )
