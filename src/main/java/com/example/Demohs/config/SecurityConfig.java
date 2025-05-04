@@ -49,6 +49,7 @@ public class SecurityConfig {
                                          "/swagger-ui/**",
                                         "/v3/api-docs/**").permitAll()
                         .requestMatchers("/circular").permitAll()
+                        .requestMatchers("/api/events/**").permitAll() // Make events public+
                         .anyRequest().authenticated() // All other requests require authentication
                 )
                 .exceptionHandling(exception -> exception

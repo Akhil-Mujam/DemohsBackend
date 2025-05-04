@@ -20,6 +20,7 @@ public class GlobalCorsConfig {
         List<String> allowedOrigins = List.of(
                 "http://localhost:5173",
                 "http://localhost:3000",
+                "http://localhost:3001",
                 "https://adminshhs.vercel.app",
                 "https://shhsgdk.in",
                 "https://shhsadmin-master-production.up.railway.app",
