@@ -35,6 +35,8 @@ public class EventController {
             @RequestParam("thumbnail") MultipartFile thumbnail
     ) {
         try {
+
+            System.out.println("---------------------Create Event Called--------------------");
             String thumbnailUrl = cloudinaryService.uploadFile(thumbnail);
 
             EventDto dto = new EventDto();
@@ -55,6 +57,7 @@ public class EventController {
     public Page<EventDto> getAllEvents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
+        System.out.println("---------------------Get Event Called--------------------");
         return eventService.getAllEvents(PageRequest.of(page, size, Sort.by("eventDate").descending()));
     }
 
@@ -83,6 +86,7 @@ public class EventController {
     public ResponseEntity<List<EventImageDto>> uploadImages(
             @PathVariable UUID eventId,
             @RequestParam("files") List<MultipartFile> files) {
+        System.out.println("---------------------List Get Event Called--------------------");
         return ResponseEntity.ok(eventService.uploadImages(eventId, files));
     }
 

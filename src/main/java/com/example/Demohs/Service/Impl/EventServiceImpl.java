@@ -59,6 +59,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<EventDto> getAllEvents(Pageable pageable) {
+        System.out.println("---------------------Inside Get Event Called--------------------");
         return eventRepository.findAll(pageable)
                 .map(event -> EventDto.fromEntity(event, false));
     }

@@ -32,7 +32,7 @@ public class GlobalCorsConfig {
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept")); // Specify needed headers
         config.setAllowedMethods(Collections.singletonList("*"));// Explicitly list methods
         config.setAllowCredentials(true); // Allow sending cookies
-
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         // Register the CORS configuration
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
